@@ -5,6 +5,9 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/robfig/cron/v3"
 )
 
@@ -15,7 +18,25 @@ type Response struct {
 
 var response = &Response{}
 
+func recordMetrics() {
+	go func() {
+		for {
+			opsProcessed.Inc()
+			time.Sleep(2 * time.Second)
+		}
+	}()
+}
+
+var (
+	opsProcessed = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "sumo_metric_test_daily_job_success",
+		Help: "The success of daily job",
+	})
+)
+
 func main() {
+	recordMetrics()
+
 	c := cron.New()
 
 	// Schedule 1
@@ -37,5 +58,8 @@ func main() {
 	r.GET("/howdy", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, "howdy")
 	})
+
+	http.Handle("/metrics", promhttp.Handler())
+
 	r.Run(":8000")
 }

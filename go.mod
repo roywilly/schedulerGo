@@ -5,6 +5,9 @@ go 1.18
 require (
 	github.com/gin-gonic/gin v1.7.7
 	github.com/robfig/cron/v3 v3.0.1
+    "github.com/prometheus/client_golang/prometheus"
+    "github.com/prometheus/client_golang/prometheus/promauto"
+    "github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 require (

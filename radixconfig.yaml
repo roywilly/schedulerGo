@@ -16,4 +16,4 @@ spec:
          port: 8000
       environmentConfig:
        - environment: dev
-
+         monitoring: true
