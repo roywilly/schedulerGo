@@ -27,6 +27,19 @@ func recordMetrics() {
 	}()
 }
 
+// func init() {
+// 	// https://stackoverflow.com/questions/65608610/how-to-use-gin-as-a-server-to-write-prometheus-exporter-metrics
+// 	prometheus.MustRegister(opsProcessed)
+// }
+
+func prometheusHandler() gin.HandlerFunc {
+	h := promhttp.Handler()
+
+	return func(c *gin.Context) {
+		h.ServeHTTP(c.Writer, c.Request)
+	}
+}
+
 var (
 	opsProcessed = promauto.NewCounter(prometheus.CounterOpts{
 		Name: "sumo_metric_test_daily_job_success",
@@ -58,9 +71,10 @@ func main() {
 	r.GET("/howdy", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, "howdy")
 	})
-	r.GET("/metrics", func(ctx *gin.Context) {
-		promhttp.Handler()
-	})
+	// r.GET("/metrics", func(ctx *gin.Context) {
+	// 	promhttp.Handler()
+	// })
+	r.GET("/metrics", prometheusHandler())
 
 	//http.Handle("/metrics", promhttp.Handler())
 
