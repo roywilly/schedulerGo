@@ -1,0 +1,18 @@
+apiVersion: radix.equinor.com/v1
+kind: RadixApplication
+metadata:
+  name: schedulerGo
+spec:
+  environments:
+    - name: dev
+      build:
+        from: main
+  components:
+    - name: main
+      src: "."
+      publicPort: http
+      ports:
+       - name: http
+         port: 8080
+      environmentConfig:
+       - environment: dev
