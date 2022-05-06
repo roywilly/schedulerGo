@@ -58,8 +58,11 @@ func main() {
 	r.GET("/howdy", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, "howdy")
 	})
+	r.GET("/metrics", func(ctx *gin.Context) {
+		promhttp.Handler()
+	})
 
-	http.Handle("/metrics", promhttp.Handler())
+	//http.Handle("/metrics", promhttp.Handler())
 
 	r.Run(":8000")
 }
