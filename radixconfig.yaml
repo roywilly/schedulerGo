@@ -1,7 +1,7 @@
 apiVersion: radix.equinor.com/v1
 kind: RadixApplication
 metadata:
-  name: schedulerGo
+  name: rowhschedulerGo
 spec:
   environments:
     - name: dev
