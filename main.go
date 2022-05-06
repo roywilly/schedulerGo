@@ -34,5 +34,8 @@ func main() {
 	r.GET("", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, response)
 	})
+	r.GET("/howdy", func(ctx *gin.Context) {
+		ctx.JSON(http.StatusOK, "howdy")
+	})
 	r.Run(":8000")
 }
