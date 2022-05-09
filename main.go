@@ -11,6 +11,7 @@ import (
 	"github.com/robfig/cron/v3"
 )
 
+// Keep counters and status here. (TODO: persist)
 type Response struct {
 	Schedule1  int
 	Schedule2  int
@@ -19,18 +20,13 @@ type Response struct {
 
 var response = &Response{}
 
-func recordMetrics() {
-	go func() {
-		for {
-			uptime.Inc()
-			time.Sleep(2 * time.Second)
-		}
-	}()
-}
-
-// func init() {
-// 	// https://stackoverflow.com/questions/65608610/how-to-use-gin-as-a-server-to-write-prometheus-exporter-metrics
-// 	prometheus.MustRegister(opsProcessed)
+// func recordMetrics() {
+// 	go func() {
+// 		for {
+// 			uptime.Inc()
+// 			time.Sleep(2 * time.Second)
+// 		}
+// 	}()
 // }
 
 func prometheusHandler() gin.HandlerFunc {
@@ -51,21 +47,22 @@ var (
 var (
 	scratchJob = promauto.NewGauge(prometheus.GaugeOpts{
 		Name: "sumo_test_gauge_admin_scratch_job",
-		Help: "The result of last scratch delete job",
+		Help: "The result of last scratch delete job (scheduled jobs server)",
 	})
 )
 
 func main() {
-	recordMetrics()
+	// recordMetrics()
 
 	c := cron.New()
 
-	// Schedule 1
+	// Schedule 1: Every other second, counter
 	c.Schedule(cron.Every(2*time.Second), cron.FuncJob(func() {
+		uptime.Inc()
 		response.Schedule1++
 	}))
 
-	// Schedule 2: Every five minute - https://crontab.guru/
+	// Schedule 2: Every five minute, counter (https://crontab.guru/)
 	c.AddFunc("*/5 * * * *", func() {
 		response.Schedule2++
 	})
@@ -85,12 +82,13 @@ func main() {
 
 	c.Start()
 
-	// Turn web server on to show values
+	// Turn web server on to show values on web page too
 	r := gin.New()
 	r.GET("", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, response)
 	})
 
+	// Prometheus to scrape our metrics here
 	r.GET("/metrics", prometheusHandler())
 
 	r.Run(":8000")
