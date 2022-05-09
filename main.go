@@ -12,8 +12,9 @@ import (
 )
 
 type Response struct {
-	Schedule1 int
-	Schedule2 int
+	Schedule1  int
+	Schedule2  int
+	ScratchJob int
 }
 
 var response = &Response{}
@@ -47,6 +48,13 @@ var (
 	})
 )
 
+var (
+	scratchJob = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "sumo_test_gauge_admin_scratch_job",
+		Help: "The result of last scratch delete job",
+	})
+)
+
 func main() {
 	recordMetrics()
 
@@ -61,22 +69,29 @@ func main() {
 	c.AddFunc("*/5 * * * *", func() {
 		response.Schedule2++
 	})
+
+	// Schedule 3: The scratch delete job
+	// Return negative on error, positive on successful run
+	c.AddFunc("*/5 * * * *", func() {
+		// Run the scratch delete job... TODO
+		if time.Now().Minute() < 30 {
+			scratchJob.Set(-2)
+			response.ScratchJob = -2
+		} else {
+			scratchJob.Set(2)
+			response.ScratchJob = 2
+		}
+	})
+
 	c.Start()
 
-	// Tun web server to show values
+	// Turn web server on to show values
 	r := gin.New()
 	r.GET("", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, response)
 	})
-	r.GET("/howdy", func(ctx *gin.Context) {
-		ctx.JSON(http.StatusOK, "howdy")
-	})
-	// r.GET("/metrics", func(ctx *gin.Context) {
-	// 	promhttp.Handler()
-	// })
-	r.GET("/metrics", prometheusHandler())
 
-	//http.Handle("/metrics", promhttp.Handler())
+	r.GET("/metrics", prometheusHandler())
 
 	r.Run(":8000")
 }
