@@ -21,7 +21,7 @@ var response = &Response{}
 func recordMetrics() {
 	go func() {
 		for {
-			opsProcessed.Inc()
+			uptime.Inc()
 			time.Sleep(2 * time.Second)
 		}
 	}()
@@ -41,9 +41,9 @@ func prometheusHandler() gin.HandlerFunc {
 }
 
 var (
-	opsProcessed = promauto.NewCounter(prometheus.CounterOpts{
-		Name: "sumo_metric_test_daily_job_success",
-		Help: "The success of daily job",
+	uptime = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "sumo_test_metric_admin_uptime",
+		Help: "The uptime of Sumo Admin (scheduled jobs server)",
 	})
 )
 
