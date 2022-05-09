@@ -20,15 +20,6 @@ type Response struct {
 
 var response = &Response{}
 
-// func recordMetrics() {
-// 	go func() {
-// 		for {
-// 			uptime.Inc()
-// 			time.Sleep(2 * time.Second)
-// 		}
-// 	}()
-// }
-
 func prometheusHandler() gin.HandlerFunc {
 	h := promhttp.Handler()
 
@@ -52,8 +43,6 @@ var (
 )
 
 func main() {
-	// recordMetrics()
-
 	c := cron.New()
 
 	// Schedule 1: Every other second, counter
