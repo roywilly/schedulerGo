@@ -1,2 +1,2 @@
 # schedulerGo
-Scheduler using Golang
+Test of Scheduler using Golang
